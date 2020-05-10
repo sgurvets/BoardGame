@@ -31,6 +31,11 @@ class FoodEnum(Enum):
     WORM = 'worm'
     RAT = 'rat'
     FISH = 'fish'
+    MISC = 'misc'
+    
+class FoodLogicEnum(Enum):
+    AND = 'and'
+    OR = 'or'
     
 #card attributes
 class HabitatEnum(Enum):
@@ -74,21 +79,24 @@ class PointValueEnum(IntEnum):
 class Card:    
     def __init__(self,card_name='Indigo Bunting',
                  habitat=HabitatEnum('forest'), 
-                 cost_string = 'wo',
+                 food_cost = 'wo',
+                 food_logic = FoodLogicEnum('and'),
                  point_value = PointValueEnum(1),
                  nest=NestEnum('bowl'), 
                  egg_capacity=EggCapacityEnum(1), 
                  wingspan = 35,
                  power_type = PowerEnum('brown')
+                 
                  ):
         self.card_name = card_name
         self.habitat = habitat
-        self.cost = cost_string
+        self.cost = food_cost
         self.point_value = point_value
         self.nest = nest
         self.egg_capacity = egg_capacity
         self.wingspan = wingspan
         self.power_type = power_type
+        self.food_logic = food_logic
         
     def display(self):
         print('Card Name = '+str(self.card_name))
@@ -192,7 +200,8 @@ class BirdData:
     def convert_row_to_card(self,row):
         card_name = row.Name
         habitat_array = self.get_habitats(row['Habitat'])
-        cost_string = self.get_cost(row['Cost'])
+        food_cost_array = self.get_cost(row['Cost'])
+        food_logic = self.get_food_logic(row['Cost'])
         point_value = row['Point Value']
         nest_array = self.get_nest_array(row['Nest Type'])
         nest_capacity = row['Nest Capacity']
@@ -201,7 +210,8 @@ class BirdData:
         
         card = Card(card_name=card_name,
                     habitat=habitat_array, 
-                    cost_string=cost_string,
+                    food_cost=food_cost_array,
+                    food_logic = food_logic,
                     point_value=point_value, 
                     nest=nest_array, 
                     egg_capacity=nest_capacity, 
@@ -232,10 +242,29 @@ class BirdData:
         return power_array
     
     def get_cost(self, cost_string):
-        #TODO come up with something
-#        cost_array = []
-#        for i in []
-        return cost_string
+        food_cost_array = []
+        if 'wo' in cost_string:
+            food_cost_array.append(FoodEnum('worm'))
+        if 'wh' in cost_string:
+            food_cost_array.append(FoodEnum('wheat'))
+        if 'f' in cost_string:
+            food_cost_array.append(FoodEnum('fish'))
+        if 'b' in cost_string:
+            food_cost_array.append(FoodEnum('berry'))
+        if 'r' in cost_string:
+            food_cost_array.append(FoodEnum('rat'))
+        if 'm' in cost_string:
+            food_cost_array.append(FoodEnum('misc'))
+            
+        return food_cost_array
+    
+    def get_food_logic(self, cost_string):
+        logic_array = []
+        if '+' in cost_string:
+            logic_array.append(FoodLogicEnum('and'))
+        if '/' in cost_string:
+            logic_array.append(FoodLogicEnum('or'))
+        return logic_array
     
 class GameManager:
     def __init__(self):
